@@ -1,0 +1,44 @@
+{
+  "name": "android-unity-runtime-analyzer",
+  "version": "0.1.0",
+  "description": "Android package inspection and runtime analysis tooling.",
+  "type": "module",
+  "bin": {
+    "aura": "./dist/cli.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "npm run clean && tsc -p tsconfig.build.json",
+    "build:test": "rm -rf dist-test && tsc -p tsconfig.test.json",
+    "test": "npm run build:test && node --test dist-test/tests/*.test.js",
+    "start": "node dist/cli.js",
+    "prepack": "npm run check && npm test && npm run build"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "keywords": [
+    "android",
+    "apk",
+    "reverse-engineering",
+    "unity",
+    "il2cpp",
+    "fingerprinting"
+  ],
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^26.1.1",
+    "@types/yauzl": "^3.4.0",
+    "typescript": "^7.0.2"
+  },
+  "exports": {
+    ".": "./dist/index.js",
+    "./package.json": "./package.json"
+  },
+  "dependencies": {
+    "android-axml-parser": "^0.1.0",
+    "yauzl": "^3.4.0"
+  }
+}
