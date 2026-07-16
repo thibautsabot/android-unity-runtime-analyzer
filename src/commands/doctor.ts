@@ -1,17 +1,11 @@
 import { runDoctor } from "../doctor/doctor.js";
-import type {
-  DoctorCategory,
-  DoctorCheck,
-  DoctorReport,
-} from "../doctor/types.js";
+import type { DoctorCategory, DoctorCheck, DoctorReport } from "../doctor/types.js";
 
 export interface DoctorCommandOptions {
   categories?: DoctorCategory[];
 }
 
-export async function runDoctorCommand(
-  options: DoctorCommandOptions = {},
-): Promise<string> {
+export async function runDoctorCommand(options: DoctorCommandOptions = {}): Promise<string> {
   const report = await runDoctor({ categories: options.categories });
   return renderDoctorReport(report);
 }
@@ -21,11 +15,7 @@ export function renderDoctorReport(report: DoctorReport): string {
   const lines: string[] = [];
 
   lines.push(c.bold("AURA Doctor"));
-  lines.push(
-    c.dim(
-      `Environment diagnostics for ${report.platform}/${report.architecture}.`,
-    ),
-  );
+  lines.push(c.dim(`Environment diagnostics for ${report.platform}/${report.architecture}.`));
   lines.push("");
 
   const categories: Array<{ id: DoctorCategory; label: string }> = [
@@ -37,9 +27,7 @@ export function renderDoctorReport(report: DoctorReport): string {
   ];
 
   for (const category of categories) {
-    const checks = report.checks.filter(
-      (check) => check.category === category.id,
-    );
+    const checks = report.checks.filter((check) => check.category === category.id);
     if (checks.length === 0) continue;
     section(lines, category.label, c);
     for (const check of checks) renderCheck(lines, check, c);
@@ -53,11 +41,7 @@ export function renderDoctorReport(report: DoctorReport): string {
   return `${lines.join("\n")}\n`;
 }
 
-function renderCheck(
-  lines: string[],
-  check: DoctorCheck,
-  c: ReturnType<typeof colors>,
-): void {
+function renderCheck(lines: string[], check: DoctorCheck, c: ReturnType<typeof colors>): void {
   const marker =
     check.status === "ok"
       ? c.green("✓")
@@ -82,11 +66,7 @@ function renderCheck(
   if (check.suggestion) lines.push(`  ${c.cyan("→")} ${check.suggestion}`);
 }
 
-function section(
-  lines: string[],
-  title: string,
-  c: ReturnType<typeof colors>,
-): void {
+function section(lines: string[], title: string, c: ReturnType<typeof colors>): void {
   if (lines.length > 0 && lines.at(-1) !== "") lines.push("");
   lines.push(c.bold(title));
   lines.push(c.dim("-".repeat(Math.max(12, title.length))));

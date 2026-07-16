@@ -1,0 +1,10 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "rules": {
+    "no-var": "error",
+    "prefer-const": "error",
+    "no-unused-vars": "error",
+    "no-duplicate-imports": "error",
+    "eqeqeq": "error"
+  }
+}

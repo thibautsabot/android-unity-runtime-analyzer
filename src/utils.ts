@@ -27,10 +27,7 @@ export function toBool(v: string | undefined): boolean | undefined {
   return undefined;
 }
 
-export function normalizeComponentName(
-  packageName: string | undefined,
-  name: string,
-): string {
+export function normalizeComponentName(packageName: string | undefined, name: string): string {
   if (!name) return "";
   if (name.startsWith(".") && packageName) return `${packageName}${name}`;
   if (!name.includes(".") && packageName) return `${packageName}.${name}`;
@@ -48,10 +45,7 @@ export function firstTagAttributes(xml: string, tagName: string): string {
 }
 
 const xmlAttributeCache = new Map<string, RegExp>();
-export function readXmlAttribute(
-  attributes: string,
-  name: string,
-): string | undefined {
+export function readXmlAttribute(attributes: string, name: string): string | undefined {
   let re = xmlAttributeCache.get(name);
   if (!re) {
     const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");

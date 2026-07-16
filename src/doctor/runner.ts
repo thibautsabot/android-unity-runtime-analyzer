@@ -9,11 +9,7 @@ interface ExecFileFailure extends Error {
 }
 
 export class SystemCommandRunner implements CommandRunner {
-  run(
-    command: string,
-    args: string[] = [],
-    timeoutMs = 5_000,
-  ): Promise<CommandResult> {
+  run(command: string, args: string[] = [], timeoutMs = 5_000): Promise<CommandResult> {
     return new Promise((resolve) => {
       execFile(
         command,
@@ -44,8 +40,7 @@ export class SystemCommandRunner implements CommandRunner {
             exitCode: typeof failure.code === "number" ? failure.code : null,
             stdout: failure.stdout ?? stdout ?? "",
             stderr: failure.stderr ?? stderr ?? "",
-            errorCode:
-              typeof failure.code === "string" ? failure.code : undefined,
+            errorCode: typeof failure.code === "string" ? failure.code : undefined,
             timedOut: failure.killed === true,
           });
         },

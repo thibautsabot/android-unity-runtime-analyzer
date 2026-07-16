@@ -1,7 +1,4 @@
-import {
-  createDetection,
-  evidence,
-} from "../detection.js";
+import { createDetection, evidence } from "../detection.js";
 import type { Detection, Detector, DetectorContext, Evidence } from "../types.js";
 
 // Unity versions: year-based (2017–2023) or Unity 6+ (6000.x.y...)
@@ -37,7 +34,8 @@ export class UnityDetector implements Detector {
         evidence({
           id: "unity-activity",
           summary: "Unity Android activity",
-          detail: "The Android manifest references UnityPlayerActivity or the Unity player package.",
+          detail:
+            "The Android manifest references UnityPlayerActivity or the Unity player package.",
           weight: 25,
           source: "manifest",
           locations: [...new Set(manifestActivities)].slice(0, 5),
@@ -81,7 +79,8 @@ export class UnityDetector implements Detector {
         evidence({
           id: "unity-core-assets",
           summary: "Unity serialized assets",
-          detail: "The package contains files commonly produced by the Unity player build pipeline.",
+          detail:
+            "The package contains files commonly produced by the Unity player build pipeline.",
           weight: 15,
           source: "file",
           locations: coreAssets.slice(0, 5).map((entry) => context.location(entry)),

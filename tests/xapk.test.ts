@@ -13,14 +13,20 @@ test("merges base and split APK evidence from an XAPK container", async () => {
   const path = join(directory, "bundle.xapk");
 
   const baseApk = createZip([
-    { name: "AndroidManifest.xml", data: createBinaryManifest({ packageName: "com.example.split" }) },
+    {
+      name: "AndroidManifest.xml",
+      data: createBinaryManifest({ packageName: "com.example.split" }),
+    },
     { name: "classes.dex", data: Buffer.from("dex\n035\u0000UnityPlayerActivity") },
     { name: "assets/bin/Data/globalgamemanagers", data: Buffer.from("2021.3.44f1") },
   ]);
   const splitApk = createZip([
     {
       name: "AndroidManifest.xml",
-      data: createBinaryManifest({ packageName: "com.example.split", splitName: "config.arm64_v8a" }),
+      data: createBinaryManifest({
+        packageName: "com.example.split",
+        splitName: "config.arm64_v8a",
+      }),
     },
     { name: "lib/arm64-v8a/libunity.so", data: Buffer.from("unity") },
     { name: "lib/arm64-v8a/libil2cpp.so", data: Buffer.from("il2cpp") },
@@ -42,8 +48,14 @@ test("merges base and split APK evidence from an XAPK container", async () => {
     assert.equal(report.application.packageName, "com.example.split");
     assert.equal(report.android.parts.length, 2);
     assert.deepEqual(report.android.architectures, ["arm64-v8a"]);
-    assert.equal(report.detections.find((detection) => detection.id === "unity")?.status, "confirmed");
-    assert.equal(report.detections.find((detection) => detection.id === "il2cpp")?.status, "confirmed");
+    assert.equal(
+      report.detections.find((detection) => detection.id === "unity")?.status,
+      "confirmed",
+    );
+    assert.equal(
+      report.detections.find((detection) => detection.id === "il2cpp")?.status,
+      "confirmed",
+    );
   } finally {
     await pkg.close();
     await rm(directory, { recursive: true, force: true });

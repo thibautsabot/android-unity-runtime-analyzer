@@ -1,3 +1,4 @@
+import { SystemCommandRunner } from "./runner.js";
 import type {
   AndroidDeviceSummary,
   CommandResult,
@@ -7,7 +8,6 @@ import type {
   DoctorOptions,
   DoctorReport,
 } from "./types.js";
-import { SystemCommandRunner } from "./runner.js";
 
 const ALL_CATEGORIES: DoctorCategory[] = ["core", "android", "frida", "native", "unity"];
 
@@ -21,45 +21,54 @@ export async function runDoctor(
 
   if (categories.has("core")) {
     checks.push(nodeCheck());
-    checks.push(await executableCheck(runner, {
-      id: "java",
-      name: "Java",
-      category: "core",
-      candidates: [{ command: "java", args: ["-version"] }],
-      version: firstVersion,
-      missingSuggestion: "Install a supported JDK and add java to PATH.",
-    }));
-    checks.push(await executableCheck(runner, {
-      id: "python",
-      name: "Python",
-      category: "core",
-      candidates: [
-        { command: "python3", args: ["--version"] },
-        { command: "python", args: ["--version"] },
-      ],
-      version: firstVersion,
-      missingSuggestion: "Install Python 3 and add it to PATH.",
-      validate: validatePythonVersion,
-    }));
-    checks.push(await executableCheck(runner, {
-      id: "pip",
-      name: "pip",
-      category: "core",
-      candidates: [
-        { command: "pip3", args: ["--version"] },
-        { command: "pip", args: ["--version"] },
-      ],
-      version: firstVersion,
-      missingSuggestion: "Install pip (usually bundled with Python 3).",
-    }));
-    checks.push(await executableCheck(runner, {
-      id: "pipx",
-      name: "pipx",
-      category: "core",
-      candidates: [{ command: "pipx", args: ["--version"] }],
-      version: firstVersion,
-      missingSuggestion: "Install pipx with pip install pipx. Used to install frida-tools and other CLI utilities.",
-    }));
+    checks.push(
+      await executableCheck(runner, {
+        id: "java",
+        name: "Java",
+        category: "core",
+        candidates: [{ command: "java", args: ["-version"] }],
+        version: firstVersion,
+        missingSuggestion: "Install a supported JDK and add java to PATH.",
+      }),
+    );
+    checks.push(
+      await executableCheck(runner, {
+        id: "python",
+        name: "Python",
+        category: "core",
+        candidates: [
+          { command: "python3", args: ["--version"] },
+          { command: "python", args: ["--version"] },
+        ],
+        version: firstVersion,
+        missingSuggestion: "Install Python 3 and add it to PATH.",
+        validate: validatePythonVersion,
+      }),
+    );
+    checks.push(
+      await executableCheck(runner, {
+        id: "pip",
+        name: "pip",
+        category: "core",
+        candidates: [
+          { command: "pip3", args: ["--version"] },
+          { command: "pip", args: ["--version"] },
+        ],
+        version: firstVersion,
+        missingSuggestion: "Install pip (usually bundled with Python 3).",
+      }),
+    );
+    checks.push(
+      await executableCheck(runner, {
+        id: "pipx",
+        name: "pipx",
+        category: "core",
+        candidates: [{ command: "pipx", args: ["--version"] }],
+        version: firstVersion,
+        missingSuggestion:
+          "Install pipx with pip install pipx. Used to install frida-tools and other CLI utilities.",
+      }),
+    );
   }
 
   if (categories.has("android")) {
@@ -88,29 +97,33 @@ export async function runDoctor(
       });
     }
 
-    checks.push(await executableCheck(runner, {
-      id: "jadx",
-      name: "JADX",
-      category: "android",
-      candidates: [
-        { command: "jadx", args: ["--version"] },
-        { command: "jadx", args: ["-v"] },
-      ],
-      version: firstVersion,
-      missingSuggestion: "Install JADX and add its bin directory to PATH.",
-    }));
+    checks.push(
+      await executableCheck(runner, {
+        id: "jadx",
+        name: "JADX",
+        category: "android",
+        candidates: [
+          { command: "jadx", args: ["--version"] },
+          { command: "jadx", args: ["-v"] },
+        ],
+        version: firstVersion,
+        missingSuggestion: "Install JADX and add its bin directory to PATH.",
+      }),
+    );
 
-    checks.push(await executableCheck(runner, {
-      id: "apktool",
-      name: "apktool",
-      category: "android",
-      candidates: [
-        { command: "apktool", args: ["--version"] },
-        { command: "apktool", args: ["-version"] },
-      ],
-      version: firstVersion,
-      missingSuggestion: "Install apktool and add it to PATH.",
-    }));
+    checks.push(
+      await executableCheck(runner, {
+        id: "apktool",
+        name: "apktool",
+        category: "android",
+        candidates: [
+          { command: "apktool", args: ["--version"] },
+          { command: "apktool", args: ["-version"] },
+        ],
+        version: firstVersion,
+        missingSuggestion: "Install apktool and add it to PATH.",
+      }),
+    );
   }
 
   if (categories.has("frida")) {
@@ -139,52 +152,60 @@ export async function runDoctor(
   }
 
   if (categories.has("native")) {
-    checks.push(await executableCheck(runner, {
-      id: "ghidra",
-      name: "Ghidra",
-      category: "native",
-      candidates: ghidraCandidates(),
-      version: ghidraVersion,
-      missingSuggestion: "Install Ghidra and add ghidraRun to PATH, or set GHIDRA_HOME.",
-    }));
+    checks.push(
+      await executableCheck(runner, {
+        id: "ghidra",
+        name: "Ghidra",
+        category: "native",
+        candidates: ghidraCandidates(),
+        version: ghidraVersion,
+        missingSuggestion: "Install Ghidra and add ghidraRun to PATH, or set GHIDRA_HOME.",
+      }),
+    );
   }
 
   if (categories.has("unity")) {
-    checks.push(await executableCheck(runner, {
-      id: "assetripper",
-      name: "AssetRipper",
-      category: "unity",
-      candidates: [
-        { command: "AssetRipper", args: ["--version"] },
-        { command: "assetripper", args: ["--version"] },
-      ],
-      version: firstVersion,
-      missingSuggestion: "Install AssetRipper and add its executable to PATH.",
-    }));
+    checks.push(
+      await executableCheck(runner, {
+        id: "assetripper",
+        name: "AssetRipper",
+        category: "unity",
+        candidates: [
+          { command: "AssetRipper", args: ["--version"] },
+          { command: "assetripper", args: ["--version"] },
+        ],
+        version: firstVersion,
+        missingSuggestion: "Install AssetRipper and add its executable to PATH.",
+      }),
+    );
 
-    checks.push(await executableCheck(runner, {
-      id: "cpp2il",
-      name: "Cpp2IL",
-      category: "unity",
-      candidates: [
-        { command: "Cpp2IL", args: ["--version"] },
-        { command: "cpp2il", args: ["--version"] },
-      ],
-      version: firstVersion,
-      missingSuggestion: "Install Cpp2IL and add its executable to PATH.",
-    }));
+    checks.push(
+      await executableCheck(runner, {
+        id: "cpp2il",
+        name: "Cpp2IL",
+        category: "unity",
+        candidates: [
+          { command: "Cpp2IL", args: ["--version"] },
+          { command: "cpp2il", args: ["--version"] },
+        ],
+        version: firstVersion,
+        missingSuggestion: "Install Cpp2IL and add its executable to PATH.",
+      }),
+    );
 
-    checks.push(await executableCheck(runner, {
-      id: "il2cppdumper",
-      name: "Il2CppDumper",
-      category: "unity",
-      candidates: [
-        { command: "Il2CppDumper", args: ["--help"] },
-        { command: "Il2CppDumper.exe", args: ["--help"] },
-      ],
-      version: firstVersion,
-      missingSuggestion: "Install Il2CppDumper and add its executable to PATH.",
-    }));
+    checks.push(
+      await executableCheck(runner, {
+        id: "il2cppdumper",
+        name: "Il2CppDumper",
+        category: "unity",
+        candidates: [
+          { command: "Il2CppDumper", args: ["--help"] },
+          { command: "Il2CppDumper.exe", args: ["--help"] },
+        ],
+        version: firstVersion,
+        missingSuggestion: "Install Il2CppDumper and add its executable to PATH.",
+      }),
+    );
   }
 
   return {
@@ -209,7 +230,9 @@ interface ExecutableCheckOptions {
   candidates: Array<{ command: string; args: string[] }>;
   version: (result: CommandResult) => string | undefined;
   missingSuggestion: string;
-  validate?: (result: CommandResult) => { status: DoctorCheck["status"]; detail: string } | undefined;
+  validate?: (
+    result: CommandResult,
+  ) => { status: DoctorCheck["status"]; detail: string } | undefined;
 }
 
 const EXECUTABLE_TIMEOUT_MS = 8_000;
@@ -253,11 +276,17 @@ async function executableCheck(
   };
 }
 
-async function resolveCommandPath(runner: CommandRunner, command: string): Promise<string | undefined> {
+async function resolveCommandPath(
+  runner: CommandRunner,
+  command: string,
+): Promise<string | undefined> {
   const isWindows = process.platform === "win32";
   const result = await runner.run(isWindows ? "where" : "which", [command], 3_000);
   if (result.exitCode === 0) {
-    return result.stdout.split(/\r?\n/).map((line) => line.trim()).find(Boolean);
+    return result.stdout
+      .split(/\r?\n/)
+      .map((line) => line.trim())
+      .find(Boolean);
   }
   return undefined;
 }
@@ -380,9 +409,7 @@ function parseAdbDevices(output: string): AndroidDeviceSummary[] {
     .filter((line) => line.length > 0 && !line.startsWith("*"))
     .map((line) => {
       const [serial = "", state = "unknown", ...fields] = line.split(/\s+/);
-      const model = fields
-        .find((field) => field.startsWith("model:"))
-        ?.slice("model:".length);
+      const model = fields.find((field) => field.startsWith("model:"))?.slice("model:".length);
       return { serial, state, model };
     });
 }
@@ -397,17 +424,25 @@ async function adbShellProperty(
   return result.exitCode === 0 && value.length > 0 ? value : undefined;
 }
 
-function validatePythonVersion(result: CommandResult): { status: DoctorCheck["status"]; detail: string } | undefined {
+function validatePythonVersion(
+  result: CommandResult,
+): { status: DoctorCheck["status"]; detail: string } | undefined {
   const output = combinedOutput(result);
   const match = /python\s+(\d+)\.(\d+)/i.exec(output);
   if (!match) return undefined;
   const major = Number(match[1]);
   const minor = Number(match[2]);
   if (major < 3) {
-    return { status: "warning", detail: "Python 2 is detected. frida-tools requires Python 3.8 or newer." };
+    return {
+      status: "warning",
+      detail: "Python 2 is detected. frida-tools requires Python 3.8 or newer.",
+    };
   }
   if (major === 3 && minor < 8) {
-    return { status: "warning", detail: `Python ${major}.${minor} is too old. frida-tools requires Python 3.8 or newer.` };
+    return {
+      status: "warning",
+      detail: `Python ${major}.${minor} is too old. frida-tools requires Python 3.8 or newer.`,
+    };
   }
   return undefined;
 }
@@ -445,6 +480,10 @@ function combinedOutput(result: CommandResult): string {
 }
 
 function firstLine(value: string): string {
-  return value.split(/\r?\n/).map((line) => line.trim()).find(Boolean) ?? "";
+  return (
+    value
+      .split(/\r?\n/)
+      .map((line) => line.trim())
+      .find(Boolean) ?? ""
+  );
 }
-

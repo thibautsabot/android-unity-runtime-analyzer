@@ -1,19 +1,22 @@
-import type { AXmlElement } from "android-axml-parser";
-import { parseAxml } from "android-axml-parser";
-import type {
-  ManifestActivity,
-  ManifestInfo,
-} from "./types.js";
-import { attrMap, firstTagAttributes, normalizeComponentName, readXmlAttribute, toBool, toNum, toNumOrStr, uniqueSorted } from "../utils.js";
+import { type AXmlElement, parseAxml } from "android-axml-parser";
+import {
+  attrMap,
+  firstTagAttributes,
+  normalizeComponentName,
+  readXmlAttribute,
+  toBool,
+  toNum,
+  toNumOrStr,
+  uniqueSorted,
+} from "../utils.js";
+import type { ManifestActivity, ManifestInfo } from "./types.js";
 
 // ── Entry point ───────────────────────────────────────────────────────────────
 
 export function parseAndroidManifest(buffer: Buffer): ManifestInfo {
   // Some APKs (e.g. already processed by apktool) contain a plain-text manifest.
   // Detect this by checking if the first non-whitespace character is "<".
-  const firstNonWhitespace = buffer
-    .toString("utf8", 0, Math.min(buffer.length, 64))
-    .trimStart()[0];
+  const firstNonWhitespace = buffer.toString("utf8", 0, Math.min(buffer.length, 64)).trimStart()[0];
   if (firstNonWhitespace === "<") {
     return parsePlainXmlManifest(buffer.toString("utf8"));
   }
@@ -44,15 +47,15 @@ function parseBinaryXmlManifest(buffer: Buffer): ManifestInfo {
   return result;
 }
 
-function extractComponentName(attrs: Map<string, string | undefined>, packageName: string | undefined): string | null {
+function extractComponentName(
+  attrs: Map<string, string | undefined>,
+  packageName: string | undefined,
+): string | null {
   const name = normalizeComponentName(packageName, attrs.get("name") ?? "");
   return name || null;
 }
 
-function extractManifestInfo(
-  manifest: AXmlElement,
-  result: ManifestInfo,
-): void {
+function extractManifestInfo(manifest: AXmlElement, result: ManifestInfo): void {
   const attrs = attrMap(manifest);
   result.packageName = attrs.get("package");
   result.splitName = attrs.get("split");
@@ -80,10 +83,7 @@ function extractManifestInfo(
   }
 }
 
-function extractApplicationInfo(
-  application: AXmlElement,
-  result: ManifestInfo,
-): void {
+function extractApplicationInfo(application: AXmlElement, result: ManifestInfo): void {
   const attrs = attrMap(application);
   result.debuggable = toBool(attrs.get("debuggable"));
   result.allowBackup = toBool(attrs.get("allowBackup"));
@@ -103,7 +103,11 @@ function extractApplicationInfo(
       case "receiver": {
         const name = extractComponentName(childAttrs, result.packageName);
         if (!name) break;
-        const component = { name, exported: toBool(childAttrs.get("exported")), permission: childAttrs.get("permission") };
+        const component = {
+          name,
+          exported: toBool(childAttrs.get("exported")),
+          permission: childAttrs.get("permission"),
+        };
         if (child.name === "service") result.services.push(component);
         else result.receivers.push(component);
         break;
@@ -187,39 +191,26 @@ function parsePlainXmlManifest(xml: string): ManifestInfo {
     providers: [],
     metaData: [],
     // Extract every identifier-like token for the detectors' string search.
-    rawStrings: [...xml.matchAll(/[A-Za-z_][\w.$:/-]+/g)].map(
-      (match) => match[0],
-    ),
+    rawStrings: [...xml.matchAll(/[A-Za-z_][\w.$:/-]+/g)].map((match) => match[0]),
   };
 
   const manifestAttributes = firstTagAttributes(xml, "manifest");
   result.packageName = readXmlAttribute(manifestAttributes, "package");
   result.splitName = readXmlAttribute(manifestAttributes, "split");
-  result.versionCode = toNum(
-    readXmlAttribute(manifestAttributes, "versionCode"),
-  );
+  result.versionCode = toNum(readXmlAttribute(manifestAttributes, "versionCode"));
   result.versionName = readXmlAttribute(manifestAttributes, "versionName");
 
   const sdkAttributes = firstTagAttributes(xml, "uses-sdk");
   result.minSdk = toNumOrStr(readXmlAttribute(sdkAttributes, "minSdkVersion"));
-  result.targetSdk = toNumOrStr(
-    readXmlAttribute(sdkAttributes, "targetSdkVersion"),
-  );
+  result.targetSdk = toNumOrStr(readXmlAttribute(sdkAttributes, "targetSdkVersion"));
 
   const appAttributes = firstTagAttributes(xml, "application");
   result.debuggable = toBool(readXmlAttribute(appAttributes, "debuggable"));
   result.allowBackup = toBool(readXmlAttribute(appAttributes, "allowBackup"));
-  result.usesCleartextTraffic = toBool(
-    readXmlAttribute(appAttributes, "usesCleartextTraffic"),
-  );
-  result.networkSecurityConfig = readXmlAttribute(
-    appAttributes,
-    "networkSecurityConfig",
-  );
+  result.usesCleartextTraffic = toBool(readXmlAttribute(appAttributes, "usesCleartextTraffic"));
+  result.networkSecurityConfig = readXmlAttribute(appAttributes, "networkSecurityConfig");
 
-  for (const match of xml.matchAll(
-    /<uses-permission(?:-sdk-23)?\b([^>]*)\/?\s*>/g,
-  )) {
+  for (const match of xml.matchAll(/<uses-permission(?:-sdk-23)?\b([^>]*)\/?\s*>/g)) {
     const permission = readXmlAttribute(match[1] ?? "", "name");
     if (permission) result.permissions.push(permission);
   }
@@ -229,10 +220,7 @@ function parsePlainXmlManifest(xml: string): ManifestInfo {
   )) {
     const attrs = match[1] ?? match[3] ?? "";
     const body = match[2] ?? "";
-    const name = normalizeComponentName(
-      result.packageName,
-      readXmlAttribute(attrs, "name") ?? "",
-    );
+    const name = normalizeComponentName(result.packageName, readXmlAttribute(attrs, "name") ?? "");
     if (!name) continue;
     const launcher =
       body.includes("android.intent.action.MAIN") &&
@@ -247,10 +235,7 @@ function parsePlainXmlManifest(xml: string): ManifestInfo {
     /<service\b([^>]*)\/?>|<service\b([^>]*)>[\s\S]*?<\/service\s*>/g,
   )) {
     const attrs = match[1] ?? match[2] ?? "";
-    const name = normalizeComponentName(
-      result.packageName,
-      readXmlAttribute(attrs, "name") ?? "",
-    );
+    const name = normalizeComponentName(result.packageName, readXmlAttribute(attrs, "name") ?? "");
     if (!name) continue;
     result.services.push({
       name,
@@ -263,10 +248,7 @@ function parsePlainXmlManifest(xml: string): ManifestInfo {
     /<receiver\b([^>]*)\/?>|<receiver\b([^>]*)>[\s\S]*?<\/receiver\s*>/g,
   )) {
     const attrs = match[1] ?? match[2] ?? "";
-    const name = normalizeComponentName(
-      result.packageName,
-      readXmlAttribute(attrs, "name") ?? "",
-    );
+    const name = normalizeComponentName(result.packageName, readXmlAttribute(attrs, "name") ?? "");
     if (!name) continue;
     result.receivers.push({
       name,
@@ -279,10 +261,7 @@ function parsePlainXmlManifest(xml: string): ManifestInfo {
     /<provider\b([^>]*)\/?>|<provider\b([^>]*)>[\s\S]*?<\/provider\s*>/g,
   )) {
     const attrs = match[1] ?? match[2] ?? "";
-    const name = normalizeComponentName(
-      result.packageName,
-      readXmlAttribute(attrs, "name") ?? "",
-    );
+    const name = normalizeComponentName(result.packageName, readXmlAttribute(attrs, "name") ?? "");
     if (!name) continue;
     result.providers.push({
       name,
@@ -306,4 +285,3 @@ function parsePlainXmlManifest(xml: string): ManifestInfo {
   result.activities.sort((left, right) => left.name.localeCompare(right.name));
   return result;
 }
-

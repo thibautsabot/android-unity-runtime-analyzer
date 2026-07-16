@@ -1,13 +1,5 @@
-import {
-  createDetection,
-  evidence,
-} from "../detection.js";
-import type {
-  Detection,
-  Detector,
-  DetectorContext,
-  Evidence,
-} from "../types.js";
+import { createDetection, evidence } from "../detection.js";
+import type { Detection, Detector, DetectorContext, Evidence } from "../types.js";
 
 interface SdkSignature {
   id: string;
@@ -97,8 +89,7 @@ const SDK_SIGNATURES: SdkSignature[] = [
 
     manifestPatterns: [
       {
-        pattern:
-          /com\.facebook\.(?:FacebookActivity|CustomTabActivity|CustomTabMainActivity)/i,
+        pattern: /com\.facebook\.(?:FacebookActivity|CustomTabActivity|CustomTabMainActivity)/i,
         weight: 25,
         summary: "Facebook SDK manifest activity",
       },
@@ -135,9 +126,7 @@ const SDK_SIGNATURES: SdkSignature[] = [
     id: "appsflyer",
     name: "AppsFlyer",
 
-    dexNeedles: [
-      { value: "com/appsflyer", weight: 80, summary: "AppsFlyer Android classes" },
-    ],
+    dexNeedles: [{ value: "com/appsflyer", weight: 80, summary: "AppsFlyer Android classes" }],
 
     manifestPatterns: [
       { pattern: /com\.appsflyer/i, weight: 20, summary: "AppsFlyer manifest component" },
@@ -148,9 +137,7 @@ const SDK_SIGNATURES: SdkSignature[] = [
     id: "adjust",
     name: "Adjust",
 
-    dexNeedles: [
-      { value: "com/adjust/sdk", weight: 80, summary: "Adjust Android classes" },
-    ],
+    dexNeedles: [{ value: "com/adjust/sdk", weight: 80, summary: "Adjust Android classes" }],
 
     manifestPatterns: [
       { pattern: /com\.adjust/i, weight: 20, summary: "Adjust manifest component" },
@@ -161,9 +148,7 @@ const SDK_SIGNATURES: SdkSignature[] = [
     id: "onesignal",
     name: "OneSignal",
 
-    dexNeedles: [
-      { value: "com/onesignal", weight: 80, summary: "OneSignal Android classes" },
-    ],
+    dexNeedles: [{ value: "com/onesignal", weight: 80, summary: "OneSignal Android classes" }],
 
     manifestPatterns: [
       { pattern: /com\.onesignal/i, weight: 20, summary: "OneSignal manifest component" },
@@ -213,17 +198,13 @@ export class ThirdPartySdkDetector implements Detector {
             detail: "A package file matches a known SDK signature.",
             weight: file.weight,
             source: "file",
-            locations: matches
-              .slice(0, 5)
-              .map((entry) => context.location(entry)),
+            locations: matches.slice(0, 5).map((entry) => context.location(entry)),
           }),
         );
       }
 
       for (const manifest of signature.manifestPatterns ?? []) {
-        const values = context.manifestStrings.filter((value) =>
-          manifest.pattern.test(value),
-        );
+        const values = context.manifestStrings.filter((value) => manifest.pattern.test(value));
 
         if (values.length === 0) {
           continue;

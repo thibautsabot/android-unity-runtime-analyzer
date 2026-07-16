@@ -1,6 +1,8 @@
-import { basename, extname } from "node:path";
 import { createHash } from "node:crypto";
 import { createReadStream } from "node:fs";
+import { basename, extname } from "node:path";
+import type { Entry as ZipEntry } from "yauzl";
+import { messageOf } from "../utils.js";
 import { parseAndroidManifest } from "./axml.js";
 import type {
   AndroidPackageFormat,
@@ -8,9 +10,7 @@ import type {
   PackageEntry,
   PackagePartSummary,
 } from "./types.js";
-import type { Entry as ZipEntry } from "yauzl";
 import { ZipArchive } from "./zip-reader.js";
-import { messageOf } from "../utils.js";
 
 interface PackagePart {
   name: string;
@@ -67,7 +67,9 @@ export class AndroidPackage {
         // Asset delivery APKs (e.g. UnityDataAssetPack.apk) can be several GiB —
         // they contain only streaming game data, never code or a useful manifest.
         if (nested.uncompressedSize > 4 * 1024 * 1024 * 1024) {
-          warnings.push(`Skipping ${nested.fileName}: too large to expand (${Math.round(nested.uncompressedSize / 1024 / 1024)} MiB)`);
+          warnings.push(
+            `Skipping ${nested.fileName}: too large to expand (${Math.round(nested.uncompressedSize / 1024 / 1024)} MiB)`,
+          );
           continue;
         }
         const nestedBuffer = await rootArchive.read(nested);
@@ -89,8 +91,11 @@ export class AndroidPackage {
       const basePart = chooseBasePart(candidateParts);
       basePart.base = true;
       const extension = extname(inputPath).toLowerCase();
-      const format: AndroidPackageFormat = extension === ".xapk" ? "xapk" : extension === ".apks" ? "apks" : "zip";
-      warnings.push(`Analyzing ${candidateParts.length} APK parts from a ${format.toUpperCase()} container`);
+      const format: AndroidPackageFormat =
+        extension === ".xapk" ? "xapk" : extension === ".apks" ? "apks" : "zip";
+      warnings.push(
+        `Analyzing ${candidateParts.length} APK parts from a ${format.toUpperCase()} container`,
+      );
 
       return new AndroidPackage(
         inputPath,
@@ -178,7 +183,10 @@ export class AndroidPackage {
     }
     this.closed = true;
 
-    const archives = new Set<ZipArchive>([this.rootArchive, ...this.parts.map((part) => part.archive)]);
+    const archives = new Set<ZipArchive>([
+      this.rootArchive,
+      ...this.parts.map((part) => part.archive),
+    ]);
     await Promise.all([...archives].map((archive) => archive.close()));
   }
 
@@ -204,9 +212,7 @@ function chooseBasePart(parts: PackagePart[]): PackagePart {
   if (namedBase) {
     return namedBase;
   }
-  const withoutSplit = parts.find(
-    (part) => part.manifest && !part.manifest.splitName,
-  );
+  const withoutSplit = parts.find((part) => part.manifest && !part.manifest.splitName);
   if (withoutSplit) {
     return withoutSplit;
   }
@@ -246,4 +252,3 @@ async function fileSize(path: string): Promise<number> {
   const { stat } = await import("node:fs/promises");
   return (await stat(path)).size;
 }
-

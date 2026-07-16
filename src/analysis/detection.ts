@@ -1,9 +1,4 @@
-import type {
-  Detection,
-  DetectionCategory,
-  DetectionStatus,
-  Evidence,
-} from "./types.js";
+import type { Detection, DetectionCategory, DetectionStatus, Evidence } from "./types.js";
 
 export function createDetection(options: {
   id: string;
@@ -43,10 +38,7 @@ export function evidence(options: {
   return options;
 }
 
-function statusFor(
-  confidence: number,
-  evidence: readonly Evidence[],
-): DetectionStatus {
+function statusFor(confidence: number, evidence: readonly Evidence[]): DetectionStatus {
   /*
    * A single signature should not be presented as independently confirmed,
    * even when its evidence score reaches 100.

@@ -19,9 +19,7 @@ async function main(argv: string[]): Promise<number> {
     case "doctor":
       return runDoctorCli(args);
     default:
-      process.stderr.write(
-        `Unknown command: ${command ?? ""}\n\n${helpText()}`,
-      );
+      process.stderr.write(`Unknown command: ${command ?? ""}\n\n${helpText()}`);
       return 2;
   }
 }
@@ -49,15 +47,11 @@ async function runInspect(argv: string[]): Promise<number> {
 
   const input = parsed.positionals[0];
   if (!input) {
-    process.stderr.write(
-      `Missing APK, XAPK or APKS path.\n\n${inspectHelpText()}`,
-    );
+    process.stderr.write(`Missing APK, XAPK or APKS path.\n\n${inspectHelpText()}`);
     return 2;
   }
   if (parsed.positionals.length > 1) {
-    process.stderr.write(
-      `Unexpected argument: ${parsed.positionals[1]}\n\n${inspectHelpText()}`,
-    );
+    process.stderr.write(`Unexpected argument: ${parsed.positionals[1]}\n\n${inspectHelpText()}`);
     return 2;
   }
 
@@ -68,9 +62,7 @@ async function runInspect(argv: string[]): Promise<number> {
     process.stdout.write(output);
     return 0;
   } catch (error) {
-    process.stderr.write(
-      `AURA could not inspect the package: ${messageOf(error)}\n`,
-    );
+    process.stderr.write(`AURA could not inspect the package: ${messageOf(error)}\n`);
     return 1;
   }
 }
@@ -100,9 +92,7 @@ async function runDoctorCli(argv: string[]): Promise<number> {
   }
 
   if (parsed.positionals.length > 0) {
-    process.stderr.write(
-      `Unexpected argument: ${parsed.positionals[0]}\n\n${doctorHelpText()}`,
-    );
+    process.stderr.write(`Unexpected argument: ${parsed.positionals[0]}\n\n${doctorHelpText()}`);
     return 2;
   }
 
@@ -113,10 +103,7 @@ async function runDoctorCli(argv: string[]): Promise<number> {
     parsed.values.unity === true ? "unity" : undefined,
   ].filter((value): value is DoctorCategory => value !== undefined);
 
-  const categories =
-    selected.length > 0
-      ? (["core", ...selected] as DoctorCategory[])
-      : undefined;
+  const categories = selected.length > 0 ? (["core", ...selected] as DoctorCategory[]) : undefined;
 
   try {
     const output = await runDoctorCommand({ categories });

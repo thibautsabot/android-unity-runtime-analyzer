@@ -1,12 +1,23 @@
 import { basename } from "node:path";
 import type { AndroidPackage } from "../apk/android-package.js";
+import { uniqueSorted } from "../utils.js";
 import { InspectionContext } from "./context.js";
-import { FlutterDetector, GodotDetector, ReactNativeDetector, UnrealDetector, XamarinDetector, CordovaDetector, Cocos2dDetector, LibGDXDetector, DefoldDetector, CapacitorDetector } from "./detectors/frameworks.js";
+import {
+  CapacitorDetector,
+  Cocos2dDetector,
+  CordovaDetector,
+  DefoldDetector,
+  FlutterDetector,
+  GodotDetector,
+  LibGDXDetector,
+  ReactNativeDetector,
+  UnrealDetector,
+  XamarinDetector,
+} from "./detectors/frameworks.js";
 import { ThirdPartySdkDetector } from "./detectors/sdks.js";
 import { Il2CppDetector, UnityDetector, UnityMonoDetector } from "./detectors/unity.js";
 import type { Detection, Detector, InspectionReport } from "./types.js";
 import { buildRecommendedWorkflow } from "./workflow.js";
-import { uniqueSorted } from "../utils.js";
 
 const DEFAULT_DETECTORS: Detector[] = [
   new UnityDetector(),
@@ -52,7 +63,9 @@ export async function analyzeAndroidPackage(
   const warnings = [...pkg.warnings, ...context.warnings];
 
   if (!manifest) {
-    warnings.push("AndroidManifest.xml could not be parsed; application metadata may be incomplete.");
+    warnings.push(
+      "AndroidManifest.xml could not be parsed; application metadata may be incomplete.",
+    );
   }
   if (detections.length === 0) {
     warnings.push("No supported application framework was identified with the current signatures.");
@@ -76,8 +89,12 @@ export async function analyzeAndroidPackage(
       ...(manifest?.targetSdk !== undefined ? { targetSdk: manifest.targetSdk } : {}),
       ...(manifest?.debuggable !== undefined ? { debuggable: manifest.debuggable } : {}),
       ...(manifest?.allowBackup !== undefined ? { allowBackup: manifest.allowBackup } : {}),
-      ...(manifest?.usesCleartextTraffic !== undefined ? { usesCleartextTraffic: manifest.usesCleartextTraffic } : {}),
-      ...(manifest?.networkSecurityConfig !== undefined ? { networkSecurityConfig: manifest.networkSecurityConfig } : {}),
+      ...(manifest?.usesCleartextTraffic !== undefined
+        ? { usesCleartextTraffic: manifest.usesCleartextTraffic }
+        : {}),
+      ...(manifest?.networkSecurityConfig !== undefined
+        ? { networkSecurityConfig: manifest.networkSecurityConfig }
+        : {}),
       permissions: manifest?.permissions ?? [],
       activities: manifest?.activities ?? [],
       services: manifest?.services ?? [],
@@ -105,4 +122,3 @@ function detectionOrder(left: Detection, right: Detection): number {
   }
   return right.confidence - left.confidence || left.name.localeCompare(right.name);
 }
-

@@ -1,7 +1,4 @@
-import {
-  createDetection,
-  evidence,
-} from "../detection.js";
+import { createDetection, evidence } from "../detection.js";
 import type { Detection, Detector, DetectorContext, Evidence } from "../types.js";
 
 export class FlutterDetector implements Detector {
@@ -291,17 +288,26 @@ export class Cocos2dDetector implements Detector {
     });
     const dexLocations = await context.searchDex("org/cocos2dx");
     if (dexLocations.length > 0) {
-      evidences.push(evidence({
-        id: "cocos2d-dex",
-        summary: "Cocos2d-x Android classes",
-        detail: "DEX bytecode references the org.cocos2dx package.",
-        weight: 25,
-        source: "dex",
-        locations: dexLocations,
-      }));
+      evidences.push(
+        evidence({
+          id: "cocos2d-dex",
+          summary: "Cocos2d-x Android classes",
+          detail: "DEX bytecode references the org.cocos2dx package.",
+          weight: 25,
+          source: "dex",
+          locations: dexLocations,
+        }),
+      );
     }
 
-    return single(createDetection({ id: "cocos2d", name: "Cocos2d-x", category: "framework", evidence: evidences }));
+    return single(
+      createDetection({
+        id: "cocos2d",
+        name: "Cocos2d-x",
+        category: "framework",
+        evidence: evidences,
+      }),
+    );
   }
 }
 
@@ -319,17 +325,21 @@ export class LibGDXDetector implements Detector {
     });
     const dexLocations = await context.searchDex("com/badlogic/gdx");
     if (dexLocations.length > 0) {
-      evidences.push(evidence({
-        id: "libgdx-dex",
-        summary: "LibGDX classes",
-        detail: "DEX bytecode references the com.badlogic.gdx package.",
-        weight: 45,
-        source: "dex",
-        locations: dexLocations,
-      }));
+      evidences.push(
+        evidence({
+          id: "libgdx-dex",
+          summary: "LibGDX classes",
+          detail: "DEX bytecode references the com.badlogic.gdx package.",
+          weight: 45,
+          source: "dex",
+          locations: dexLocations,
+        }),
+      );
     }
 
-    return single(createDetection({ id: "libgdx", name: "LibGDX", category: "framework", evidence: evidences }));
+    return single(
+      createDetection({ id: "libgdx", name: "LibGDX", category: "framework", evidence: evidences }),
+    );
   }
 }
 
@@ -353,7 +363,9 @@ export class DefoldDetector implements Detector {
       weight: 30,
     });
 
-    return single(createDetection({ id: "defold", name: "Defold", category: "framework", evidence: evidences }));
+    return single(
+      createDetection({ id: "defold", name: "Defold", category: "framework", evidence: evidences }),
+    );
   }
 }
 
@@ -378,17 +390,26 @@ export class CapacitorDetector implements Detector {
     });
     const dexLocations = await context.searchDex("com/getcapacitor");
     if (dexLocations.length > 0) {
-      evidences.push(evidence({
-        id: "capacitor-dex",
-        summary: "Capacitor Android classes",
-        detail: "DEX bytecode references the com.getcapacitor package.",
-        weight: 40,
-        source: "dex",
-        locations: dexLocations,
-      }));
+      evidences.push(
+        evidence({
+          id: "capacitor-dex",
+          summary: "Capacitor Android classes",
+          detail: "DEX bytecode references the com.getcapacitor package.",
+          weight: 40,
+          source: "dex",
+          locations: dexLocations,
+        }),
+      );
     }
 
-    return single(createDetection({ id: "capacitor", name: "Capacitor", category: "framework", evidence: evidences }));
+    return single(
+      createDetection({
+        id: "capacitor",
+        name: "Capacitor",
+        category: "framework",
+        evidence: evidences,
+      }),
+    );
   }
 }
 

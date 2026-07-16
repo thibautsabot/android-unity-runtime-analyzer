@@ -2,12 +2,9 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { runDoctor } from "../src/doctor/doctor.js";
 import type { CommandResult, CommandRunner } from "../src/doctor/types.js";
-import { renderDoctorReport } from "../src/commands/doctor.js";
 
 class FakeRunner implements CommandRunner {
-  constructor(
-    private readonly responses: Record<string, Partial<CommandResult>>,
-  ) {}
+  constructor(private readonly responses: Record<string, Partial<CommandResult>>) {}
 
   async run(command: string, args: string[] = []): Promise<CommandResult> {
     const key = [command, ...args].join(" ");
@@ -52,21 +49,12 @@ test("doctor reports tools and connected Android devices", async () => {
   assert.equal(report.devices[0]?.serial, "emulator-5554");
   assert.equal(report.devices[0]?.architecture, "arm64-v8a");
   assert.equal(report.checks.find((check) => check.id === "adb")?.status, "ok");
-  assert.equal(
-    report.checks.find((check) => check.id === "android-device")?.status,
-    "ok",
-  );
+  assert.equal(report.checks.find((check) => check.id === "android-device")?.status, "ok");
 });
 
 test("doctor reports missing tools without throwing", async () => {
   const report = await runDoctor({ categories: ["frida"] }, new FakeRunner({}));
 
-  assert.equal(
-    report.checks.find((check) => check.id === "frida")?.status,
-    "missing",
-  );
-  assert.equal(
-    report.checks.find((check) => check.id === "frida-device")?.status,
-    "missing",
-  );
+  assert.equal(report.checks.find((check) => check.id === "frida")?.status, "missing");
+  assert.equal(report.checks.find((check) => check.id === "frida-device")?.status, "missing");
 });

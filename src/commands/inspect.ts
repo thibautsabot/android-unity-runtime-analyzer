@@ -1,7 +1,7 @@
 import { resolve } from "node:path";
-import { AndroidPackage } from "../apk/android-package.js";
 import { analyzeAndroidPackage } from "../analysis/analyzer.js";
 import type { Detection, InspectionReport } from "../analysis/types.js";
+import { AndroidPackage } from "../apk/android-package.js";
 
 export async function runInspectCommand(
   input: string,
@@ -24,10 +24,7 @@ const categoryLabels: Record<Detection["category"], string> = {
   toolchain: "Toolchain",
 };
 
-function renderConsoleReport(
-  report: InspectionReport,
-  verbose: boolean,
-): string {
+function renderConsoleReport(report: InspectionReport, verbose: boolean): string {
   const c = colors();
   const lines: string[] = [];
 
@@ -44,10 +41,7 @@ function renderConsoleReport(
   field(
     lines,
     "Version",
-    formatVersion(
-      report.application.versionName,
-      report.application.versionCode,
-    ),
+    formatVersion(report.application.versionName, report.application.versionCode),
   );
 
   section(lines, "Android", c);
@@ -59,20 +53,12 @@ function renderConsoleReport(
     "DEX files",
     `${report.android.dexFiles}${report.android.multiDex ? " (MultiDEX)" : ""}`,
   );
-  field(
-    lines,
-    "Native libraries",
-    String(report.android.nativeLibraries.length),
-  );
+  field(lines, "Native libraries", String(report.android.nativeLibraries.length));
   if (report.android.debuggable !== undefined) {
     field(lines, "Debuggable", report.android.debuggable ? c.red("yes") : "no");
   }
   if (report.android.allowBackup !== undefined) {
-    field(
-      lines,
-      "Allow backup",
-      report.android.allowBackup ? c.yellow("yes") : "no",
-    );
+    field(lines, "Allow backup", report.android.allowBackup ? c.yellow("yes") : "no");
   }
   if (report.android.usesCleartextTraffic !== undefined) {
     field(
@@ -85,16 +71,9 @@ function renderConsoleReport(
     field(lines, "Net security cfg", report.android.networkSecurityConfig);
   }
 
-  const categories: Detection["category"][] = [
-    "framework",
-    "backend",
-    "sdk",
-    "toolchain",
-  ];
+  const categories: Detection["category"][] = ["framework", "backend", "sdk", "toolchain"];
   for (const category of categories) {
-    const detections = report.detections.filter(
-      (detection) => detection.category === category,
-    );
+    const detections = report.detections.filter((detection) => detection.category === category);
     if (detections.length === 0) {
       continue;
     }
@@ -107,9 +86,7 @@ function renderConsoleReport(
 
   section(lines, "Recommended workflow", c);
   for (const step of report.workflow) {
-    lines.push(
-      `${c.cyan(String(step.order).padStart(2, " "))}. ${c.bold(step.tool)}`,
-    );
+    lines.push(`${c.cyan(String(step.order).padStart(2, " "))}. ${c.bold(step.tool)}`);
     lines.push(`    ${step.purpose}`);
   }
 
@@ -128,9 +105,7 @@ function renderConsoleReport(
           activity.launcher ? "launcher" : undefined,
           activity.exported === true ? "exported" : undefined,
         ].filter(Boolean);
-        lines.push(
-          `  ${activity.name}${markers.length > 0 ? ` (${markers.join(", ")})` : ""}`,
-        );
+        lines.push(`  ${activity.name}${markers.length > 0 ? ` (${markers.join(", ")})` : ""}`);
       }
     }
 
@@ -141,9 +116,7 @@ function renderConsoleReport(
           service.exported === true ? "exported" : undefined,
           service.permission ? `permission: ${service.permission}` : undefined,
         ].filter(Boolean);
-        lines.push(
-          `  ${service.name}${markers.length > 0 ? ` (${markers.join(", ")})` : ""}`,
-        );
+        lines.push(`  ${service.name}${markers.length > 0 ? ` (${markers.join(", ")})` : ""}`);
       }
     }
 
@@ -152,13 +125,9 @@ function renderConsoleReport(
       for (const receiver of report.android.receivers) {
         const markers = [
           receiver.exported === true ? "exported" : undefined,
-          receiver.permission
-            ? `permission: ${receiver.permission}`
-            : undefined,
+          receiver.permission ? `permission: ${receiver.permission}` : undefined,
         ].filter(Boolean);
-        lines.push(
-          `  ${receiver.name}${markers.length > 0 ? ` (${markers.join(", ")})` : ""}`,
-        );
+        lines.push(`  ${receiver.name}${markers.length > 0 ? ` (${markers.join(", ")})` : ""}`);
       }
     }
 
@@ -167,16 +136,10 @@ function renderConsoleReport(
       for (const provider of report.android.providers) {
         const markers = [
           provider.exported === true ? "exported" : undefined,
-          provider.authorities
-            ? `authorities: ${provider.authorities}`
-            : undefined,
-          provider.permission
-            ? `permission: ${provider.permission}`
-            : undefined,
+          provider.authorities ? `authorities: ${provider.authorities}` : undefined,
+          provider.permission ? `permission: ${provider.permission}` : undefined,
         ].filter(Boolean);
-        lines.push(
-          `  ${provider.name}${markers.length > 0 ? ` (${markers.join(", ")})` : ""}`,
-        );
+        lines.push(`  ${provider.name}${markers.length > 0 ? ` (${markers.join(", ")})` : ""}`);
       }
     }
   }
@@ -184,9 +147,7 @@ function renderConsoleReport(
   if (report.android.metaData.length > 0) {
     section(lines, `Metadata (${report.android.metaData.length})`, c);
     for (const meta of report.android.metaData) {
-      lines.push(
-        `  ${meta.name}${meta.value !== undefined ? `: ${meta.value}` : ""}`,
-      );
+      lines.push(`  ${meta.name}${meta.value !== undefined ? `: ${meta.value}` : ""}`);
     }
   }
 
@@ -228,9 +189,7 @@ function renderDetection(
   );
 
   for (const [key, value] of Object.entries(detection.details)) {
-    lines.push(
-      `  ${key}: ${Array.isArray(value) ? value.join(", ") : String(value)}`,
-    );
+    lines.push(`  ${key}: ${Array.isArray(value) ? value.join(", ") : String(value)}`);
   }
 
   lines.push("  Evidence:");
@@ -247,11 +206,7 @@ function renderDetection(
   lines.push("");
 }
 
-function section(
-  lines: string[],
-  title: string,
-  c: ReturnType<typeof colors>,
-): void {
+function section(lines: string[], title: string, c: ReturnType<typeof colors>): void {
   if (lines.length > 0 && lines.at(-1) !== "") {
     lines.push("");
   }
@@ -263,10 +218,7 @@ function field(lines: string[], label: string, value: string): void {
   lines.push(`${label.padEnd(18, " ")} ${value}`);
 }
 
-function formatVersion(
-  name: string | undefined,
-  code: number | undefined,
-): string {
+function formatVersion(name: string | undefined, code: number | undefined): string {
   if (name && code !== undefined) {
     return `${name} (${code})`;
   }

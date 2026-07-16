@@ -11,17 +11,17 @@
 //   offset 2: headerSize (uint16)
 //   offset 4: totalSize  (uint32)
 
-const RES_XML_TYPE = 0x0003;               // file header type
-const RES_STRING_POOL_TYPE = 0x0001;       // string pool chunk type
+const RES_XML_TYPE = 0x0003; // file header type
+const RES_STRING_POOL_TYPE = 0x0001; // string pool chunk type
 const RES_XML_START_ELEMENT_TYPE = 0x0102; // opening tag
-const RES_XML_END_ELEMENT_TYPE = 0x0103;   // closing tag
+const RES_XML_END_ELEMENT_TYPE = 0x0103; // closing tag
 
 // Sentinel meaning "no string" — used for namespaces and missing raw values.
 const NO_INDEX = 0xffffffff;
 
 // Attribute value types (only the ones we use in fixtures).
-const TYPE_STRING = 0x03;      // value is a string pool index
-const TYPE_INT_DEC = 0x10;     // value is a decimal integer
+const TYPE_STRING = 0x03; // value is a string pool index
+const TYPE_INT_DEC = 0x10; // value is a decimal integer
 const TYPE_INT_BOOLEAN = 0x12; // value is 0 (false) or non-zero (true)
 
 interface AttributeInput {
@@ -88,9 +88,7 @@ export function createBinaryManifest(options?: {
                   },
                   {
                     name: "category",
-                    attributes: [
-                      { name: "name", value: "android.intent.category.LAUNCHER" },
-                    ],
+                    attributes: [{ name: "name", value: "android.intent.category.LAUNCHER" }],
                   },
                 ],
               },
@@ -172,10 +170,10 @@ function createStringPool(strings: string[]): Buffer {
   chunk.writeUInt16LE(headerSize, 2);
   chunk.writeUInt32LE(chunkSize, 4);
   chunk.writeUInt32LE(strings.length, 8);
-  chunk.writeUInt32LE(0, 12);       // styleCount
-  chunk.writeUInt32LE(0x100, 16);   // flags: UTF-8
+  chunk.writeUInt32LE(0, 12); // styleCount
+  chunk.writeUInt32LE(0x100, 16); // flags: UTF-8
   chunk.writeUInt32LE(stringsStart, 20);
-  chunk.writeUInt32LE(0, 24);       // stylesStart
+  chunk.writeUInt32LE(0, 24); // stylesStart
 
   offsets.forEach((offset, index) => chunk.writeUInt32LE(offset, headerSize + index * 4));
 
@@ -194,7 +192,12 @@ function createStringPool(strings: string[]): Buffer {
 function encodeUtf8String(value: string): Buffer {
   const encoded = Buffer.from(value, "utf8");
   const utf16Length = [...value].length; // character count (may differ from byte count for non-ASCII)
-  return Buffer.concat([encodeLength8(utf16Length), encodeLength8(encoded.length), encoded, Buffer.from([0])]);
+  return Buffer.concat([
+    encodeLength8(utf16Length),
+    encodeLength8(encoded.length),
+    encoded,
+    Buffer.from([0]),
+  ]);
 }
 
 // Android's variable-length 1-or-2-byte encoding:
@@ -243,16 +246,16 @@ function createStartElement(element: ElementInput, strings: Map<string, number>)
   chunk.writeUInt16LE(RES_XML_START_ELEMENT_TYPE, 0);
   chunk.writeUInt16LE(16, 2);
   chunk.writeUInt32LE(chunkSize, 4);
-  chunk.writeUInt32LE(1, 8);           // lineNumber
-  chunk.writeUInt32LE(NO_INDEX, 12);   // comment
-  chunk.writeUInt32LE(NO_INDEX, 16);   // namespace
+  chunk.writeUInt32LE(1, 8); // lineNumber
+  chunk.writeUInt32LE(NO_INDEX, 12); // comment
+  chunk.writeUInt32LE(NO_INDEX, 16); // namespace
   chunk.writeUInt32LE(indexOf(strings, element.name), 20);
-  chunk.writeUInt16LE(20, 24);         // attributeStart
-  chunk.writeUInt16LE(20, 26);         // attributeSize
+  chunk.writeUInt16LE(20, 24); // attributeStart
+  chunk.writeUInt16LE(20, 26); // attributeSize
   chunk.writeUInt16LE(attributes.length, 28);
-  chunk.writeUInt16LE(0, 30);          // idIndex
-  chunk.writeUInt16LE(0, 32);          // classIndex
-  chunk.writeUInt16LE(0, 34);          // styleIndex
+  chunk.writeUInt16LE(0, 30); // idIndex
+  chunk.writeUInt16LE(0, 32); // classIndex
+  chunk.writeUInt16LE(0, 34); // styleIndex
 
   // Each attribute is 20 bytes:
   //   +0  namespace  (uint32) = NO_INDEX
@@ -264,20 +267,23 @@ function createStartElement(element: ElementInput, strings: Map<string, number>)
   //   +16 data       (uint32) typed value payload
   attributes.forEach((attribute, index) => {
     const offset = 36 + index * 20;
-    chunk.writeUInt32LE(NO_INDEX, offset);                          // namespace
+    chunk.writeUInt32LE(NO_INDEX, offset); // namespace
     chunk.writeUInt32LE(indexOf(strings, attribute.name), offset + 4);
     if (typeof attribute.value === "string") {
       const stringIndex = indexOf(strings, attribute.value);
-      chunk.writeUInt32LE(stringIndex, offset + 8);                 // rawValue = same string
+      chunk.writeUInt32LE(stringIndex, offset + 8); // rawValue = same string
       chunk.writeUInt16LE(8, offset + 12);
       chunk.writeUInt8(0, offset + 14);
       chunk.writeUInt8(TYPE_STRING, offset + 15);
-      chunk.writeUInt32LE(stringIndex, offset + 16);                // data = string index
+      chunk.writeUInt32LE(stringIndex, offset + 16); // data = string index
     } else {
-      chunk.writeUInt32LE(NO_INDEX, offset + 8);                    // no raw string for numbers/booleans
+      chunk.writeUInt32LE(NO_INDEX, offset + 8); // no raw string for numbers/booleans
       chunk.writeUInt16LE(8, offset + 12);
       chunk.writeUInt8(0, offset + 14);
-      chunk.writeUInt8(typeof attribute.value === "boolean" ? TYPE_INT_BOOLEAN : TYPE_INT_DEC, offset + 15);
+      chunk.writeUInt8(
+        typeof attribute.value === "boolean" ? TYPE_INT_BOOLEAN : TYPE_INT_DEC,
+        offset + 15,
+      );
       chunk.writeUInt32LE(
         typeof attribute.value === "boolean" ? (attribute.value ? 1 : 0) : attribute.value,
         offset + 16,

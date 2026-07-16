@@ -28,21 +28,44 @@ Requires Node.js ≥ 20.
 
 ## Usage
 
+### inspect
+
+Analyzes an APK, XAPK or APKS package and prints a detection report.
+
 ```sh
 aura inspect app.apk
 aura inspect app.xapk
 aura inspect app.apks
 ```
 
-Add `--verbose` (or `-v`) to also show the full list of activities, services, receivers, providers and permissions:
+Add `--verbose` (or `-v`) to also show the full list of activities, services, receivers, providers, permissions and evidence locations:
 
 ```sh
 aura inspect app.apk --verbose
 ```
 
+### doctor
+
+Checks whether the tools needed for Android and Unity reverse engineering are installed and reachable on PATH.
+
+```sh
+aura doctor
+```
+
+Run only specific categories:
+
+```sh
+aura doctor --android
+aura doctor --frida
+aura doctor --native
+aura doctor --unity
+```
+
 ---
 
 ## Example output
+
+### inspect
 
 ```
 AURA APK Inspection
@@ -66,7 +89,7 @@ Native libraries   8
 
 Frameworks
 ------------
-Unity  CONFIRMED  100%
+Unity  CONFIRMED  score 100/100
   Evidence:
     ✓ Unity engine library (+45)
       libunity.so is shipped by Unity Android builds.
@@ -75,7 +98,7 @@ Unity  CONFIRMED  100%
 
 Backends
 ------------
-IL2CPP  CONFIRMED  100%
+IL2CPP  CONFIRMED  score 100/100
   metadataVersion: 29
   Evidence:
     ✓ IL2CPP native library (+55)
@@ -93,6 +116,51 @@ Recommended workflow
     Recover managed types, methods, fields and native method addresses.
  4. Ghidra, IDA or Binary Ninja
     Analyze the native implementations inside libil2cpp.so.
+```
+
+### doctor
+
+```
+AURA Doctor
+Environment diagnostics for darwin/arm64.
+
+Core
+------------
+✓ Node.js                 OK 20.12.1
+✓ Java                    OK 21.0.4
+✓ Python                  OK 3.12.3
+✓ pip                     OK 24.0
+- pipx                    MISSING
+  → Install pipx with pip install pipx.
+
+Android
+------------
+✓ ADB                     OK 1.0.41
+✓ Android device          OK
+  emulator-5554: device (Pixel_8, arm64-v8a, 15)
+✓ JADX                    OK 1.5.1
+✓ apktool                 OK 2.10.0
+
+Frida
+------------
+✓ Frida CLI               OK 16.3.3
+✓ Frida device connection OK
+
+Native analysis
+------------
+✓ Ghidra                  OK 11.1.2
+
+Unity tooling
+------------
+✓ AssetRipper             OK 1.0.0
+- Cpp2IL                  MISSING
+  → Install Cpp2IL and add its executable to PATH.
+- Il2CppDumper            MISSING
+  → Install Il2CppDumper and add its executable to PATH.
+
+Summary
+------------
+8 OK  0 warnings  3 missing  0 errors
 ```
 
 ---
