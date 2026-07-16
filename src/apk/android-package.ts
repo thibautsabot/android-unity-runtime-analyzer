@@ -64,6 +64,12 @@ export class AndroidPackage {
       const warnings: string[] = [];
       const candidateParts: PackagePart[] = [];
       for (const nested of nestedApks) {
+        // Asset delivery APKs (e.g. UnityDataAssetPack.apk) can be several GiB —
+        // they contain only streaming game data, never code or a useful manifest.
+        if (nested.uncompressedSize > 4 * 1024 * 1024 * 1024) {
+          warnings.push(`Skipping ${nested.fileName}: too large to expand (${Math.round(nested.uncompressedSize / 1024 / 1024)} MiB)`);
+          continue;
+        }
         const nestedBuffer = await rootArchive.read(nested);
         const nestedArchive = await ZipArchive.fromBuffer(nestedBuffer);
         let manifest: ManifestInfo | undefined;

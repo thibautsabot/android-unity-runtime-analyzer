@@ -52,8 +52,8 @@ export class ZipArchive {
     if (!resolved) {
       throw new Error(`ZIP entry not found: ${String(entry)}`);
     }
-    if (resolved.uncompressedSize > 512 * 1024 * 1024) {
-      throw new Error(`Refusing to expand ZIP entry larger than 512 MiB: ${resolved.fileName}`);
+    if (resolved.uncompressedSize > 4 * 1024 * 1024 * 1024) {
+      throw new Error(`Refusing to expand ZIP entry larger than 4 GiB: ${resolved.fileName}`);
     }
 
     const stream = await this.zipFile.openReadStreamPromise(resolved);

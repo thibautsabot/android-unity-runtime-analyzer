@@ -4,7 +4,8 @@ import {
 } from "../detection.js";
 import type { Detection, Detector, DetectorContext, Evidence } from "../types.js";
 
-const UNITY_VERSION_PATTERN = /\b(20\d{2}\.\d+\.\d+[abfp]\d+(?:c\d+)?)\b/;
+// Unity versions: year-based (2017–2023) or Unity 6+ (6000.x.y...)
+const UNITY_VERSION_PATTERN = /\b((?:20\d{2}|[6-9]\d{3})\.\d+\.\d+[abfp]\d+(?:c\d+)?)\b/;
 const IL2CPP_METADATA_MAGIC = 0xfab11baf;
 
 export class UnityDetector implements Detector {
@@ -73,7 +74,7 @@ export class UnityDetector implements Detector {
     }
 
     const coreAssets = context.findEntries(
-      /(?:^|\/)(?:globalgamemanagers|globalgamemanagers\.assets|resources\.assets|data\.unity3d|unity default resources)$/i,
+      /(?:^|\/)(?:globalgamemanagers|globalgamemanagers\.assets|resources\.assets|data\.unity3d|unity default resources)(?:\.split0)?$/i,
     );
     if (coreAssets.length > 0) {
       evidences.push(
@@ -240,8 +241,9 @@ async function detectUnityVersion(
   candidates: ReturnType<DetectorContext["findEntries"]>,
 ): Promise<{ version: string; location: string } | undefined> {
   // Widen the search to other serialized asset files that also carry the version header.
+  // Also include .split0 files — when assets are split, the header (and version string) is in the first chunk.
   const additional = context.findEntries(
-    /(?:^|\/)(?:sharedassets\d+\.assets|level\d+|resources\.assets)$/i,
+    /(?:^|\/)(?:sharedassets\d+\.assets|level\d+|resources\.assets)(?:\.split0)?$/i,
   );
   // Cap at 12 files — version detection is opportunistic, no need to scan everything.
   const entries = [...candidates, ...additional].slice(0, 12);
