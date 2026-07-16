@@ -16,10 +16,19 @@ export { AndroidPackage } from "./apk/android-package.js";
 export type {
   AndroidPackageFormat,
   ManifestActivity,
-  ManifestComponent,
   ManifestInfo,
-  ManifestMetaData,
-  ManifestProvider,
   PackageEntry,
   PackagePartSummary,
 } from "./apk/types.js";
+export { runDoctor } from "./doctor/doctor.js";
+export { SystemCommandRunner } from "./doctor/runner.js";
+export type {
+  AndroidDeviceSummary,
+  CommandResult,
+  CommandRunner,
+  DoctorCategory,
+  DoctorCheck,
+  DoctorOptions,
+  DoctorReport,
+  DoctorStatus,
+} from "./doctor/types.js";
