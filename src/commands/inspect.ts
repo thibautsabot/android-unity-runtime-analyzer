@@ -3,12 +3,15 @@ import { AndroidPackage } from "../apk/android-package.js";
 import { analyzeAndroidPackage } from "../analysis/analyzer.js";
 import type { Detection, InspectionReport } from "../analysis/types.js";
 
-export async function runInspectCommand(input: string): Promise<string> {
+export async function runInspectCommand(
+  input: string,
+  options: { verbose?: boolean } = {},
+): Promise<string> {
   const packagePath = resolve(input);
   const pkg = await AndroidPackage.open(packagePath);
   try {
     const report = await analyzeAndroidPackage(pkg);
-    return renderConsoleReport(report);
+    return renderConsoleReport(report, options.verbose ?? false);
   } finally {
     await pkg.close();
   }
@@ -21,7 +24,10 @@ const categoryLabels: Record<Detection["category"], string> = {
   toolchain: "Toolchain",
 };
 
-function renderConsoleReport(report: InspectionReport): string {
+function renderConsoleReport(
+  report: InspectionReport,
+  verbose: boolean,
+): string {
   const c = colors();
   const lines: string[] = [];
 
@@ -62,10 +68,18 @@ function renderConsoleReport(report: InspectionReport): string {
     field(lines, "Debuggable", report.android.debuggable ? c.red("yes") : "no");
   }
   if (report.android.allowBackup !== undefined) {
-    field(lines, "Allow backup", report.android.allowBackup ? c.yellow("yes") : "no");
+    field(
+      lines,
+      "Allow backup",
+      report.android.allowBackup ? c.yellow("yes") : "no",
+    );
   }
   if (report.android.usesCleartextTraffic !== undefined) {
-    field(lines, "Cleartext traffic", report.android.usesCleartextTraffic ? c.red("allowed") : "blocked");
+    field(
+      lines,
+      "Cleartext traffic",
+      report.android.usesCleartextTraffic ? c.red("allowed") : "blocked",
+    );
   }
   if (report.android.networkSecurityConfig !== undefined) {
     field(lines, "Net security cfg", report.android.networkSecurityConfig);
@@ -99,64 +113,80 @@ function renderConsoleReport(report: InspectionReport): string {
     lines.push(`    ${step.purpose}`);
   }
 
-  if (report.android.permissions.length > 0) {
-    section(lines, `Permissions (${report.android.permissions.length})`, c);
-    for (const permission of report.android.permissions) {
-      lines.push(`  ${permission}`);
+  if (verbose) {
+    if (report.android.permissions.length > 0) {
+      section(lines, `Permissions (${report.android.permissions.length})`, c);
+      for (const permission of report.android.permissions) {
+        lines.push(`  ${permission}`);
+      }
     }
-  }
 
-  if (report.android.activities.length > 0) {
-    section(lines, `Activities (${report.android.activities.length})`, c);
-    for (const activity of report.android.activities) {
-      const markers = [
-        activity.launcher ? "launcher" : undefined,
-        activity.exported === true ? "exported" : undefined,
-      ].filter(Boolean);
-      lines.push(
-        `  ${activity.name}${markers.length > 0 ? ` (${markers.join(", ")})` : ""}`,
-      );
+    if (report.android.activities.length > 0) {
+      section(lines, `Activities (${report.android.activities.length})`, c);
+      for (const activity of report.android.activities) {
+        const markers = [
+          activity.launcher ? "launcher" : undefined,
+          activity.exported === true ? "exported" : undefined,
+        ].filter(Boolean);
+        lines.push(
+          `  ${activity.name}${markers.length > 0 ? ` (${markers.join(", ")})` : ""}`,
+        );
+      }
     }
-  }
 
-  if (report.android.services.length > 0) {
-    section(lines, `Services (${report.android.services.length})`, c);
-    for (const service of report.android.services) {
-      const markers = [
-        service.exported === true ? "exported" : undefined,
-        service.permission ? `permission: ${service.permission}` : undefined,
-      ].filter(Boolean);
-      lines.push(`  ${service.name}${markers.length > 0 ? ` (${markers.join(", ")})` : ""}`);
+    if (report.android.services.length > 0) {
+      section(lines, `Services (${report.android.services.length})`, c);
+      for (const service of report.android.services) {
+        const markers = [
+          service.exported === true ? "exported" : undefined,
+          service.permission ? `permission: ${service.permission}` : undefined,
+        ].filter(Boolean);
+        lines.push(
+          `  ${service.name}${markers.length > 0 ? ` (${markers.join(", ")})` : ""}`,
+        );
+      }
     }
-  }
 
-  if (report.android.receivers.length > 0) {
-    section(lines, `Receivers (${report.android.receivers.length})`, c);
-    for (const receiver of report.android.receivers) {
-      const markers = [
-        receiver.exported === true ? "exported" : undefined,
-        receiver.permission ? `permission: ${receiver.permission}` : undefined,
-      ].filter(Boolean);
-      lines.push(`  ${receiver.name}${markers.length > 0 ? ` (${markers.join(", ")})` : ""}`);
+    if (report.android.receivers.length > 0) {
+      section(lines, `Receivers (${report.android.receivers.length})`, c);
+      for (const receiver of report.android.receivers) {
+        const markers = [
+          receiver.exported === true ? "exported" : undefined,
+          receiver.permission
+            ? `permission: ${receiver.permission}`
+            : undefined,
+        ].filter(Boolean);
+        lines.push(
+          `  ${receiver.name}${markers.length > 0 ? ` (${markers.join(", ")})` : ""}`,
+        );
+      }
     }
-  }
 
-  if (report.android.providers.length > 0) {
-    section(lines, `Providers (${report.android.providers.length})`, c);
-    for (const provider of report.android.providers) {
-      const markers = [
-        provider.exported === true ? "exported" : undefined,
-        provider.authorities ? `authorities: ${provider.authorities}` : undefined,
-        provider.permission ? `permission: ${provider.permission}` : undefined,
-      ].filter(Boolean);
-      lines.push(`  ${provider.name}${markers.length > 0 ? ` (${markers.join(", ")})` : ""}`);
+    if (report.android.providers.length > 0) {
+      section(lines, `Providers (${report.android.providers.length})`, c);
+      for (const provider of report.android.providers) {
+        const markers = [
+          provider.exported === true ? "exported" : undefined,
+          provider.authorities
+            ? `authorities: ${provider.authorities}`
+            : undefined,
+          provider.permission
+            ? `permission: ${provider.permission}`
+            : undefined,
+        ].filter(Boolean);
+        lines.push(
+          `  ${provider.name}${markers.length > 0 ? ` (${markers.join(", ")})` : ""}`,
+        );
+      }
     }
   }
 
   if (report.android.metaData.length > 0) {
-    section(lines, `Meta-data (${report.android.metaData.length})`, c);
+    section(lines, `Metadata (${report.android.metaData.length})`, c);
     for (const meta of report.android.metaData) {
-      lines.push(`  ${meta.name}${meta.value !== undefined ? `: ${meta.value}` : ""}`);
+      lines.push(
+        `  ${meta.name}${meta.value !== undefined ? `: ${meta.value}` : ""}`,
+      );
     }
   }
 
@@ -207,9 +237,6 @@ function renderDetection(
     const weight = c.dim(` (+${evidence.weight})`);
     lines.push(`    ${c.green("✓")} ${evidence.summary}${weight}`);
     lines.push(`      ${evidence.detail}`);
-    for (const location of evidence.locations) {
-      lines.push(`      ${c.dim(location)}`);
-    }
   }
   lines.push("");
 }

@@ -136,11 +136,11 @@ const SDK_SIGNATURES: SdkSignature[] = [
     name: "AppsFlyer",
 
     dexNeedles: [
-      {
-        value: "com/appsflyer",
-        weight: 100,
-        summary: "AppsFlyer Android classes",
-      },
+      { value: "com/appsflyer", weight: 80, summary: "AppsFlyer Android classes" },
+    ],
+
+    manifestPatterns: [
+      { pattern: /com\.appsflyer/i, weight: 20, summary: "AppsFlyer manifest component" },
     ],
   },
 
@@ -149,11 +149,11 @@ const SDK_SIGNATURES: SdkSignature[] = [
     name: "Adjust",
 
     dexNeedles: [
-      {
-        value: "com/adjust/sdk",
-        weight: 100,
-        summary: "Adjust Android classes",
-      },
+      { value: "com/adjust/sdk", weight: 80, summary: "Adjust Android classes" },
+    ],
+
+    manifestPatterns: [
+      { pattern: /com\.adjust/i, weight: 20, summary: "Adjust manifest component" },
     ],
   },
 
@@ -162,11 +162,11 @@ const SDK_SIGNATURES: SdkSignature[] = [
     name: "OneSignal",
 
     dexNeedles: [
-      {
-        value: "com/onesignal",
-        weight: 100,
-        summary: "OneSignal Android classes",
-      },
+      { value: "com/onesignal", weight: 80, summary: "OneSignal Android classes" },
+    ],
+
+    manifestPatterns: [
+      { pattern: /com\.onesignal/i, weight: 20, summary: "OneSignal manifest component" },
     ],
   },
 ];
