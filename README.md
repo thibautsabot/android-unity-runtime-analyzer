@@ -12,6 +12,12 @@ Whether you're a developer trying to understand how your application can be anal
 
 # Handbook
 
+## Getting Started
+
+- [00 - AURA](00-aura.md) — Optional. Identifies the framework, backend and SDKs in any APK and recommends the right tools for the job.
+
+---
+
 ## Part I - Android Foundations
 
 These chapters introduce the Android reverse engineering workflow and the tools commonly used to inspect, modify and instrument Android applications.

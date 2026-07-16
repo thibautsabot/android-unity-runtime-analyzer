@@ -101,7 +101,7 @@ function renderConsoleReport(
 
     section(lines, categoryLabels[category], c);
     for (const detection of detections) {
-      renderDetection(lines, detection, c);
+      renderDetection(lines, detection, c, verbose);
     }
   }
 
@@ -213,6 +213,7 @@ function renderDetection(
   lines: string[],
   detection: Detection,
   c: ReturnType<typeof colors>,
+  verbose = false,
 ): void {
   const status = detection.status.toUpperCase();
   const statusText =
@@ -223,7 +224,7 @@ function renderDetection(
         : c.dim(status);
 
   lines.push(
-    `${c.bold(detection.name)}  ${statusText}  ${c.bold(`${detection.confidence}%`)}`,
+    `${c.bold(detection.name)}  ${statusText}  ${c.dim(`score ${detection.confidence}/100`)}`,
   );
 
   for (const [key, value] of Object.entries(detection.details)) {
@@ -236,6 +237,11 @@ function renderDetection(
   for (const evidence of detection.evidence) {
     const weight = c.dim(` (+${evidence.weight})`);
     lines.push(`    ${c.green("✓")} ${evidence.summary}${weight}`);
+    if (verbose && evidence.locations.length > 0) {
+      for (const location of evidence.locations) {
+        lines.push(`      ${c.dim(location)}`);
+      }
+    }
     lines.push(`      ${evidence.detail}`);
   }
   lines.push("");

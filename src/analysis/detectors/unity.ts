@@ -193,9 +193,20 @@ export class UnityMonoDetector implements Detector {
       return [];
     }
 
+    // libmonosgen-2.0.so is also used by Xamarin and other Mono-based frameworks.
+    // Require at least one Unity-specific indicator before treating the Mono runtime as a Unity signal.
+    const hasUnityLibrary = context.findEntries(/^lib\/[^/]+\/libunity\.so$/i).length > 0;
+    const hasUnityManifest = context.manifestStrings.some((value) =>
+      /(?:^|\.)UnityPlayerActivity$|com\.unity3d\.player/i.test(value),
+    );
+    const assemblies = context.findEntries(/(?:^|\/)Managed\/Assembly-CSharp\.dll$/i);
+
+    if (!hasUnityLibrary && !hasUnityManifest && assemblies.length === 0) {
+      return [];
+    }
+
     const evidences: Evidence[] = [];
 
-    const assemblies = context.findEntries(/(?:^|\/)Managed\/Assembly-CSharp\.dll$/i);
     if (assemblies.length > 0) {
       evidences.push(
         evidence({

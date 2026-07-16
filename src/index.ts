@@ -16,7 +16,10 @@ export { AndroidPackage } from "./apk/android-package.js";
 export type {
   AndroidPackageFormat,
   ManifestActivity,
+  ManifestComponent,
   ManifestInfo,
+  ManifestMetaData,
+  ManifestProvider,
   PackageEntry,
   PackagePartSummary,
 } from "./apk/types.js";

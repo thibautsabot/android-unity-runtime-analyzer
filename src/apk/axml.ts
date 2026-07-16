@@ -243,6 +243,65 @@ function parsePlainXmlManifest(xml: string): ManifestInfo {
     result.activities.push(activity);
   }
 
+  for (const match of xml.matchAll(
+    /<service\b([^>]*)\/?>|<service\b([^>]*)>[\s\S]*?<\/service\s*>/g,
+  )) {
+    const attrs = match[1] ?? match[2] ?? "";
+    const name = normalizeComponentName(
+      result.packageName,
+      readXmlAttribute(attrs, "name") ?? "",
+    );
+    if (!name) continue;
+    result.services.push({
+      name,
+      exported: toBool(readXmlAttribute(attrs, "exported")),
+      permission: readXmlAttribute(attrs, "permission"),
+    });
+  }
+
+  for (const match of xml.matchAll(
+    /<receiver\b([^>]*)\/?>|<receiver\b([^>]*)>[\s\S]*?<\/receiver\s*>/g,
+  )) {
+    const attrs = match[1] ?? match[2] ?? "";
+    const name = normalizeComponentName(
+      result.packageName,
+      readXmlAttribute(attrs, "name") ?? "",
+    );
+    if (!name) continue;
+    result.receivers.push({
+      name,
+      exported: toBool(readXmlAttribute(attrs, "exported")),
+      permission: readXmlAttribute(attrs, "permission"),
+    });
+  }
+
+  for (const match of xml.matchAll(
+    /<provider\b([^>]*)\/?>|<provider\b([^>]*)>[\s\S]*?<\/provider\s*>/g,
+  )) {
+    const attrs = match[1] ?? match[2] ?? "";
+    const name = normalizeComponentName(
+      result.packageName,
+      readXmlAttribute(attrs, "name") ?? "",
+    );
+    if (!name) continue;
+    result.providers.push({
+      name,
+      exported: toBool(readXmlAttribute(attrs, "exported")),
+      permission: readXmlAttribute(attrs, "permission"),
+      authorities: readXmlAttribute(attrs, "authorities"),
+      readPermission: readXmlAttribute(attrs, "readPermission"),
+      writePermission: readXmlAttribute(attrs, "writePermission"),
+    });
+  }
+
+  for (const match of xml.matchAll(/<meta-data\b([^>]*)\/>/g)) {
+    const attrs = match[1] ?? "";
+    const name = readXmlAttribute(attrs, "name");
+    if (name) {
+      result.metaData.push({ name, value: readXmlAttribute(attrs, "value") });
+    }
+  }
+
   result.permissions = uniqueSorted(result.permissions);
   result.activities.sort((left, right) => left.name.localeCompare(right.name));
   return result;

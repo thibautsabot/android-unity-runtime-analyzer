@@ -46,7 +46,9 @@ async function main(argv: string[]): Promise<number> {
   }
 
   try {
-    const output = await runInspectCommand(input, { verbose: parsed.values.verbose === true });
+    const output = await runInspectCommand(input, {
+      verbose: parsed.values.verbose === true,
+    });
     process.stdout.write(output);
     return 0;
   } catch (error) {
@@ -58,13 +60,12 @@ async function main(argv: string[]): Promise<number> {
 }
 
 function helpText(): string {
-  return `AURA\n\nAndroid package inspector.\n\nUsage:\n  aura inspect <package.apk|package.xapk|package.apks> [options]\n\nCommands:\n  inspect       Detect frameworks, backends and SDKs with supporting evidence\n\nOptions:\n  -v, --verbose  Show full manifest details (permissions, activities, services, receivers, providers, meta-data)\n`;
+  return `AURA\n\nAndroid package inspector.\n\nUsage:\n  aura inspect <package.apk|package.xapk|package.apks> [options]\n\nCommands:\n  inspect       Detect frameworks, backends and SDKs with supporting evidence\n\nOptions:\n  -v, --verbose  Show full manifest details (permissions, activities, services, receivers, providers)\n`;
 }
 
 function inspectHelpText(): string {
   return `Usage:\n  aura inspect <package.apk|package.xapk|package.apks> [--verbose]\n`;
 }
-
 
 const exitCode = await main(process.argv.slice(2));
 process.exitCode = exitCode;

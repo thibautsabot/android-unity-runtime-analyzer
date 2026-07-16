@@ -49,7 +49,7 @@ export async function analyzeAndroidPackage(
       .filter((value): value is string => Boolean(value)),
   );
   const manifest = pkg.manifest;
-  const warnings = [...pkg.warnings];
+  const warnings = [...pkg.warnings, ...context.warnings];
 
   if (!manifest) {
     warnings.push("AndroidManifest.xml could not be parsed; application metadata may be incomplete.");

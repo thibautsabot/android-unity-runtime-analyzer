@@ -85,6 +85,7 @@ The following table summarises the role of the most common Android reverse engin
 
 | Tool             | Typical Questions                                   |
 | ---------------- | --------------------------------------------------- |
+| **AURA**         | What framework, backend and SDKs does this use?     |
 | **apktool**      | How is the APK packaged? Can it be rebuilt?         |
 | **JADX**         | What does the Java layer do?                        |
 | **Smali**        | What does the compiled bytecode actually execute?   |

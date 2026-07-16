@@ -198,13 +198,17 @@ async function readManifest(archive: ZipArchive): Promise<ManifestInfo> {
 }
 
 function chooseBasePart(parts: PackagePart[]): PackagePart {
-  const withoutSplit = parts.find((part) => !part.manifest?.splitName);
-  if (withoutSplit) {
-    return withoutSplit;
-  }
-  const namedBase = parts.find((part) => /(?:^|\/)base(?:-master)?\.apk$/i.test(part.name));
+  const namedBase = parts.find(
+    (part) => part.manifest && /(?:^|\/)base(?:-master)?\.apk$/i.test(part.name),
+  );
   if (namedBase) {
     return namedBase;
+  }
+  const withoutSplit = parts.find(
+    (part) => part.manifest && !part.manifest.splitName,
+  );
+  if (withoutSplit) {
+    return withoutSplit;
   }
   const largest = [...parts].sort(
     (left, right) => totalUncompressed(right.archive) - totalUncompressed(left.archive),

@@ -6,6 +6,7 @@ const MAX_DEX_SCAN_SIZE = 128 * 1024 * 1024;
 
 export class InspectionContext implements DetectorContext {
   private readonly dexSearchCache = new Map<string, Promise<string[]>>();
+  readonly warnings: string[] = [];
 
   constructor(readonly pkg: AndroidPackage) {}
 
@@ -41,13 +42,23 @@ export class InspectionContext implements DetectorContext {
     const target = Buffer.from(needle, "utf8");
     const matches: string[] = [];
 
+    const skipped: string[] = [];
     for (const entry of dexEntries) {
       if (entry.uncompressedSize > MAX_DEX_SCAN_SIZE) {
+        skipped.push(entry.path.split("/").at(-1) ?? entry.path);
         continue;
       }
       const contents = await this.pkg.read(entry);
       if (contents.indexOf(target) >= 0) {
         matches.push(this.pkg.location(entry));
+      }
+    }
+    if (skipped.length > 0) {
+      const list = skipped.join(", ");
+      if (!this.warnings.some((w) => w.includes(list))) {
+        this.warnings.push(
+          `Skipped ${list} during signature scanning (exceeds ${MAX_DEX_SCAN_SIZE / 1024 / 1024} MiB limit). Some framework or SDK detections may be incomplete.`,
+        );
       }
     }
     return matches;
