@@ -140,3 +140,5 @@ At this point, we have not extracted or modified any application files.
 We know how the application was packaged and which major technologies it uses, but we do not yet know where any particular game value or behavior is implemented.
 
 Our next step is to check whether the required tools are installed and correctly configured before beginning the analysis.
+
+[02 - Environment](02-environment.md)

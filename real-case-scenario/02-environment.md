@@ -153,3 +153,5 @@ aura doctor
 No application files have been modified.
 
 Our next step is to open the Android package in JADX and determine what can be learned from the Android bytecode.
+
+[03 - JADX first look](03-jadx-first-look.md)
